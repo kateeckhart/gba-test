@@ -1,0 +1,17 @@
+[package]
+name = "gba-test"
+version = "0.1.0"
+authors = ["Alex Eckhart <eckhartalex@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["staticlib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bitflags = "1.2"
+miniz_oxide = "0.5"
+
+[build-dependencies]
+cc = "1.0"

@@ -1,0 +1,17 @@
+The internal fs uses the following format.
+It is made up of recursive files and dirs.
+The entire structure is a dir called the root dir.
+
+A dir is made up of members stacked back to back ending with a 0 byte.
+A member has the following format.
+
+u8 name_size
+str(of name_size bytes) name
+padding to align data
+u32 flag_size
+[u8; size] data
+padding to align start of next entry
+
+where flag_size are the following bit flags
+0-24 (0x1FFFFFF): size
+25 (0x2000000): dir flag

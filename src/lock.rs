@@ -1,7 +1,7 @@
 use crate::volatile::VolatileBool;
 use core::cell::UnsafeCell;
-use core::ops;
 use core::mem;
+use core::ops;
 
 pub struct IrqSafeRefCell<T>(UnsafeCell<T>, VolatileBool);
 
@@ -19,9 +19,7 @@ impl<T> IrqSafeRefCell<T> {
         if locked {
             None
         } else {
-            unsafe {
-                Some(IrqSafeRefMut(&mut *(self.0.get()), &self.1))
-            }
+            unsafe { Some(IrqSafeRefMut(&mut *(self.0.get()), &self.1)) }
         }
     }
 }
@@ -33,9 +31,7 @@ pub struct IrqSafeRefMut<'a, T>(&'a mut T, &'a VolatileBool);
 impl<'a, T> IrqSafeRefMut<'a, T> {
     pub fn map<F: FnOnce(&mut T) -> &mut U, U>(cell: Self, fun: F) -> IrqSafeRefMut<'a, U> {
         let new_ref = fun(cell.0);
-        let extended_new_ref = unsafe {
-            &mut *(new_ref as *mut U)
-        };
+        let extended_new_ref = unsafe { &mut *(new_ref as *mut U) };
         let ret = IrqSafeRefMut(extended_new_ref, cell.1);
         mem::forget(cell);
         ret

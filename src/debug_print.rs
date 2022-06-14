@@ -1,7 +1,7 @@
-use core::ptr;
-use core::fmt;
 use crate::once::Lazy;
 use core::cell::Cell;
+use core::fmt;
+use core::ptr;
 
 pub struct DebugPrinterData {
     supported: bool,
@@ -15,7 +15,7 @@ unsafe impl Sync for DebugPrinterData {}
 impl DebugPrinterData {
     fn write_byte(&self, byte: u8) {
         if !self.supported {
-            return
+            return;
         }
         let mut m_ptr = self.message_ptr.get();
         if m_ptr as usize >= 0x4FFF6FF && byte != b'\n' {
@@ -43,9 +43,7 @@ pub static DEBUG_PRINTER: Lazy<DebugPrinterData> = Lazy::new(|| {
     unsafe {
         ptr::write_volatile(0x4FFF780 as *mut u16, 0xC0DE);
     }
-    let raw_supported = unsafe {
-        ptr::read_volatile(0x4FFF780 as *const u16)
-    };
+    let raw_supported = unsafe { ptr::read_volatile(0x4FFF780 as *const u16) };
     let supported = raw_supported == 0x1DEA;
     DebugPrinterData {
         supported,

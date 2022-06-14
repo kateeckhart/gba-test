@@ -1,8 +1,8 @@
 use crate::volatile::VolatileBool;
-use core::mem::MaybeUninit;
-use core::ptr;
-use core::ops;
 use core::cell::UnsafeCell;
+use core::mem::MaybeUninit;
+use core::ops;
+use core::ptr;
 
 pub struct Lazy<T, F = fn() -> T> {
     builder: UnsafeCell<Option<F>>,
@@ -29,9 +29,7 @@ impl<T, F: FnOnce() -> T> ops::Deref for Lazy<T, F> {
 
     fn deref(&self) -> &Self::Target {
         if self.built.read() {
-            unsafe {
-                return &(*(*self.value.get()).as_ptr())
-            }
+            unsafe { return &(*(*self.value.get()).as_ptr()) }
         }
 
         let building = self.building.swap(true);
@@ -40,14 +38,10 @@ impl<T, F: FnOnce() -> T> ops::Deref for Lazy<T, F> {
             panic!("Double init of lazy");
         }
 
-        let builder = unsafe {
-            (*self.builder.get()).take()
-        }.unwrap();
+        let builder = unsafe { (*self.builder.get()).take() }.unwrap();
 
         let value = builder();
-        unsafe {
-            (*self.value.get()) = MaybeUninit::new(value)
-        }
+        unsafe { (*self.value.get()) = MaybeUninit::new(value) }
         self.built.write(true);
 
         &**self

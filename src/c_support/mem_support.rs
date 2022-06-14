@@ -18,7 +18,7 @@ static mut NEXT_FREE_POINTER: *mut () = __malloc_begin as *mut ();
 #[no_mangle]
 unsafe extern "C" fn sbrk(raw_inc: i32) -> *mut () {
     if raw_inc < 0 {
-        return usize::MAX as *mut ()
+        return usize::MAX as *mut ();
     }
     let inc = raw_inc as usize;
     if inc > 256 * 1024 {
@@ -42,20 +42,14 @@ struct Alloc;
 
 unsafe impl GlobalAlloc for Alloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        unsafe {
-            malloc(layout.size())
-        }
+        unsafe { malloc(layout.size()) }
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, _: Layout) {
-        unsafe {
-            free(ptr)
-        }
+        unsafe { free(ptr) }
     }
 
     unsafe fn realloc(&self, ptr: *mut u8, _: Layout, new_size: usize) -> *mut u8 {
-        unsafe {
-            realloc(ptr, new_size)
-        }
+        unsafe { realloc(ptr, new_size) }
     }
 }

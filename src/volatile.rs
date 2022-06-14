@@ -1,7 +1,7 @@
-use core::ptr;
 use core::cell::UnsafeCell;
-use core::sync::atomic::Ordering;
+use core::ptr;
 use core::sync::atomic::compiler_fence;
+use core::sync::atomic::Ordering;
 
 pub struct VolatileBool(UnsafeCell<bool>);
 
@@ -14,9 +14,7 @@ extern "C" {
 impl VolatileBool {
     pub fn read(&self) -> bool {
         compiler_fence(Ordering::SeqCst);
-        let ret = unsafe {
-            ptr::read_volatile(self.0.get())
-        };
+        let ret = unsafe { ptr::read_volatile(self.0.get()) };
         compiler_fence(Ordering::SeqCst);
         ret
     }
@@ -31,9 +29,7 @@ impl VolatileBool {
 
     pub fn write(&self, value: bool) {
         compiler_fence(Ordering::SeqCst);
-        unsafe {
-            ptr::write_volatile(self.0.get(), value)
-        }
+        unsafe { ptr::write_volatile(self.0.get(), value) }
         compiler_fence(Ordering::SeqCst);
     }
 

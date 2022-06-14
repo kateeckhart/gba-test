@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import png
 import sys
+import zlib
 
 (width, height, data, info) = png.Reader(filename = sys.argv[1]).asRGB8()
 
@@ -20,4 +21,7 @@ for row in data:
         output_data += combined_color.to_bytes(2, byteorder='little')
 
 with open(sys.argv[2], mode="wb") as output_file:
-    output_file.write(output_data)
+    compressor = zlib.compressobj(level=9, wbits=-15, memLevel=9)
+
+    output_file.write(compressor.compress(output_data))
+    output_file.write(compressor.flush())

@@ -1,7 +1,7 @@
-use core::convert::{TryInto, TryFrom};
 use core::cmp::min;
-use core::str;
+use core::convert::{TryFrom, TryInto};
 use core::slice;
+use core::str;
 
 extern "C" {
     static ROOT_DIR: [u8; 0];
@@ -40,7 +40,11 @@ pub enum SeekError {
 }
 
 impl RomFile {
-    pub fn raw_open<T>(name: T) -> Result<Self, OpenError> where T: IntoIterator<Item = u8>, T::IntoIter: Clone {
+    pub fn raw_open<T>(name: T) -> Result<Self, OpenError>
+    where
+        T: IntoIterator<Item = u8>,
+        T::IntoIter: Clone,
+    {
         let root_dir = get_root_dir();
         let mut dir_index = 0;
         let mut name_bytes = name.into_iter();
@@ -54,14 +58,14 @@ impl RomFile {
             let mut name_size = root_dir[dir_index];
             dir_index += 1;
             if name_size == 0 {
-                return Err(OpenError::NotFound)
+                return Err(OpenError::NotFound);
             }
             let mut this_entry = true;
             while name_size > 0 {
                 let char = if let Some(c) = name_bytes.next() {
                     c
                 } else {
-                    break
+                    break;
                 };
                 if char != root_dir[dir_index] {
                     this_entry = false;
@@ -75,16 +79,17 @@ impl RomFile {
             if dir_index % 4 != 0 {
                 dir_index += 4 - (dir_index % 4)
             }
-            let mut size = u32::from_le_bytes(root_dir[dir_index..dir_index + 4].try_into().unwrap()) as usize;
+            let mut size =
+                u32::from_le_bytes(root_dir[dir_index..dir_index + 4].try_into().unwrap()) as usize;
             dir_index += 4;
             let is_dir = size & 0x2000000 == 0x2000000;
             size &= 0x1FFFFFF;
             if this_entry {
                 let next_byte = name_bytes.next();
                 if next_byte.is_none() && is_dir {
-                    return Err(OpenError::IsDir)
+                    return Err(OpenError::IsDir);
                 } else if next_byte == Some(b'/') && !is_dir {
-                    return Err(OpenError::IsFile)
+                    return Err(OpenError::IsFile);
                 } else if next_byte.is_some() && next_byte != Some(b'/') {
                     this_entry = false;
                 }
@@ -96,7 +101,7 @@ impl RomFile {
                     return Ok(Self {
                         data: &root_dir[dir_index..dir_index + size],
                         offset: 0,
-                    })
+                    });
                 }
             } else {
                 name_bytes = name_begin.clone();
@@ -123,20 +128,14 @@ impl RomFile {
 
     pub fn seek(&mut self, pos: SeekFrom) -> Result<u32, SeekError> {
         let new_offset = match pos {
-            SeekFrom::Start(offset) => {
-                Some(offset)
-            }
+            SeekFrom::Start(offset) => Some(offset),
             SeekFrom::End(offset) => {
                 let size = self.data.len() as i32;
-                size
-                    .checked_add(offset)
-                    .and_then(|x| u32::try_from(x).ok())
+                size.checked_add(offset).and_then(|x| u32::try_from(x).ok())
             }
-            SeekFrom::Current(offset) => {
-                (self.offset as i32)
-                    .checked_add(offset)
-                    .and_then(|x| u32::try_from(x).ok())
-            }
+            SeekFrom::Current(offset) => (self.offset as i32)
+                .checked_add(offset)
+                .and_then(|x| u32::try_from(x).ok()),
         };
         if let Some(off) = new_offset {
             self.offset = off as usize

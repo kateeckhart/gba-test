@@ -2,3 +2,4 @@
 .idea
 data.bin
 debug-gba-test.*
+release-gba-test.*

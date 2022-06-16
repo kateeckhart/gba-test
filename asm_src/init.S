@@ -73,3 +73,5 @@ stack_end_loc:
 stack_start:
 .skip 16 * 1024
 stack_end:
+
+.section ".fast_bss", "w", %nobits

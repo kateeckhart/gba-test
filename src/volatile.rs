@@ -3,13 +3,13 @@ use core::ptr;
 use core::sync::atomic::compiler_fence;
 use core::sync::atomic::Ordering;
 
-pub struct VolatileBool(UnsafeCell<bool>);
-
-unsafe impl Sync for VolatileBool {}
-
 extern "C" {
     fn atomic_swap_byte(loc: *mut u8, value: u8) -> u8;
 }
+
+pub struct VolatileBool(UnsafeCell<bool>);
+
+unsafe impl Sync for VolatileBool {}
 
 impl VolatileBool {
     pub fn read(&self) -> bool {
@@ -35,5 +35,39 @@ impl VolatileBool {
 
     pub const fn new(value: bool) -> Self {
         VolatileBool(UnsafeCell::new(value))
+    }
+}
+
+pub struct VolatileMutPtr<T>(UnsafeCell<*mut T>);
+unsafe impl<T> Sync for VolatileMutPtr<T> {}
+
+impl<T> VolatileMutPtr<T> {
+    pub fn read(&self) -> *mut T {
+        unsafe { ptr::read_volatile(self.0.get()) }
+    }
+
+    pub fn write(&self, value: *mut T) {
+        unsafe { ptr::write_volatile(self.0.get(), value) }
+    }
+
+    pub const fn new(value: *mut T) -> Self {
+        VolatileMutPtr(UnsafeCell::new(value))
+    }
+}
+
+pub struct VolatileUsize(UnsafeCell<usize>);
+unsafe impl Sync for VolatileUsize {}
+
+impl VolatileUsize {
+    pub fn read(&self) -> usize {
+        unsafe { ptr::read_volatile(self.0.get()) }
+    }
+
+    pub fn write(&self, value: usize) {
+        unsafe { ptr::write_volatile(self.0.get(), value) }
+    }
+
+    pub const fn new(value: usize) -> Self {
+        VolatileUsize(UnsafeCell::new(value))
     }
 }

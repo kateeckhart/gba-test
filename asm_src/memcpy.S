@@ -1,5 +1,6 @@
 .arm
 .section ".fast_text", "x"
+.align 4
 .global __aeabi_memcpy
 .type __aeabi_memcpy, %function
 __aeabi_memcpy:

@@ -5,7 +5,8 @@ SECTIONS {
   exidx . : ALIGN(4) { *(.ARM.exidx.text.*) }
 
   . = 0x03000000;
-  fast_mem . : ALIGN(4)  { KEEP(*(.fast_text)) }
+  fast_mem . : ALIGN(4)  { KEEP(*(.fast_text)) *(.fast_data) }
+  fast_bss . : { *(.fast_bss) }
 
   __fast_mem_size = SIZEOF(fast_mem);
   __fast_mem_begin = ADDR(fast_mem);

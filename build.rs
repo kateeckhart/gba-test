@@ -9,6 +9,7 @@ fn main() {
         .file("asm_src/memcpy.S")
         .file("asm_src/util.S")
         .file("asm_src/data.S")
+        .file("asm_src/irq.S")
         .compile("asm");
     cc::Build::new()
         .file("third_party/malloc/dlmalloc.c")
